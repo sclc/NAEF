@@ -8,9 +8,9 @@ There are some main purpose of this project
 
 1. To support numerical analysis and novel numerical algorithm design.
 2. To support experiment conduction, result data processing, data anlysis and experimental data storge.
-3. To practice numerical method programing skills, and make sure you REALLY understand the algorithm procedure.
+3. To practice numerical method programing skills, and make sure you REALLY understand the algorithm procedure and implementation details. The understanding is very import when people want to implement the algorithm on a real supercomputing system using other programming languages and programming models.
 4. To understand numerical characterics of varities of numerical methods through numerical experiments.
-5. To conduct mathematical experiment for applied mathematics research.
+5. To conduct mathematical experiment for applied mathematics research. The observation of numerical properties and iterim results of the algorithm execution may deepen people's understanding to the nature of the algorithms and the maths behind it. And this can inspire new research directions to improve the existing algorithms and even re-design new decent algorithms.
 
 What are not the purpose of this project
 
@@ -21,5 +21,6 @@ What are not the purpose of this project
 2.  
 
 Technical Features
+
 1. This project will employ heavly OOP (Object Oriented Programming)
 2. 
