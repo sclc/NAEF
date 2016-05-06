@@ -23,4 +23,4 @@ What are not the purpose of this project
 Technical Features
 
 1. This project will employ heavly OOP (Object Oriented Programming)
-2. 
+2. This project will employ Python libraries, for example matplotlib, to produce figures and graphs 
