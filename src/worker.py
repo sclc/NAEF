@@ -11,15 +11,16 @@ class Worker (metaclass=abc.ABCMeta):
         """ intial fucntion Worker class """
         print ("initial call of Worker class")
 
-    def _set_numerical_method (self, method_to_call):
+    def _set_simple_numerical_method (self, method_to_call):
         """ numerical_method property setting function"""
-        self._numerical_method = method_to_call
+        self._simple_numerical_method = method_to_call
 
-    def _get_numerical_method(self):
+    def _get_simple_numerical_method(self):
         """ numerical_method property getting function"""
-        return self._numerical_method
+        return self._simple_numerical_method
 
-    numerical_method = property (_get_numerical_method, _set_numerical_method)
+    simple_umerical_method = property (_get_simple_numerical_method,
+            _set_simple_numerical_method)
 
     @abc.abstractmethod
     def _setup_testbed(self):
