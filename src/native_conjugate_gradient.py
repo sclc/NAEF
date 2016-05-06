@@ -26,9 +26,14 @@ class NativeConjugateGradient(object):
         v_x_temp = self._X
 
         v_Ax = mat_temp.matvec(v_x_temp)
-        v_p = v_r = v_b_temp - v_Ax
 
-        s_rTr = np.inner(v_r[:,0], v_r[:,0])
+        """ v_p = v_r = v_b_temp - v_Ax
+            is a dangerous bug, v_p and v_r will be alias of a same memory
+        """
+        v_p = v_b_temp - v_Ax
+        v_r = v_p.copy()
+
+        s_rTr = np.dot(v_r[:,0], v_r[:,0])
         hist_list.append(np.sqrt(s_rTr))
         iter_counter = 0
 
@@ -36,7 +41,7 @@ class NativeConjugateGradient(object):
             v_Ap      = mat_temp.matvec(v_p)
             #ptp_old_db    = np.inner(v_p[:,0], v_p[:,0])
             #print ("v_Ap shape:{}".format(v_Ap.shape))
-            s_ptAp    = np.inner (v_Ap[:,0], v_p[:,0])
+            s_ptAp    = np.dot (v_Ap[:,0], v_p[:,0])
             #print("s_ptAP:{}, s_rTr:{}".format(s_ptAp, s_rTr))
             s_alpha   = s_rTr / s_ptAp
             #print("alpha:{}".format(s_alpha))
@@ -45,9 +50,11 @@ class NativeConjugateGradient(object):
             #print("v_x_temp:{}".format( np.inner(v_x_temp[:,0],v_x_temp[:,0])))
             v_r      -= s_alpha * v_Ap
 
-            s_rTr_new = np.inner(v_r[:,0],v_r[:,0])
+            s_rTr_new = np.dot(v_r[:,0],v_r[:,0])
             s_beta    = s_rTr_new /s_rTr
             #print("beta:{}".format(s_beta))
+            if (v_p == v_r).all():
+                print("this is wrong")
             v_p       = v_r + s_beta * v_p
             s_rTr     = s_rTr_new
             hist_list.append(np.sqrt(s_rTr))
@@ -56,7 +63,7 @@ class NativeConjugateGradient(object):
 
             iter_counter += 1
 
-        self._X = v_x_temp
+        #self._X = v_x_temp
         self._final_iterations = iter_counter
         return hist_list
 
