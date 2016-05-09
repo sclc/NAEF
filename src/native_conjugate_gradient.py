@@ -68,6 +68,62 @@ class NativeConjugateGradient(object):
         return hist_list
 
 
+class NativeBlockConjugateGradient(object):
+    """ """
+    def __init__(self, mat, initX, B, tol, max_iteration):
+        """ """ 
+        self._mat=mat
+        self._initX=initX
+        self._B=B
+        self._blocksize = self._B.shape[1]
+        self._tol=tol
+        self._max_iteration = max_iteration
+        self._final_iterations = 0
+
+    def bcg_variant_one_run(self, whichcol):
+        """ run cg variant here,
+            return convergence history
+            s_: sclar
+            v_: vector
+        """
+        hist_list = []
+        op_matmatmul = aslinearoperator(self._mat)
+        m_B = self._B
+        m_initX = self._initX
+        m_X = self._initX.copy()
+
+        m_AX= op_matmatmul(m_initX)
+
+        """ v_p = v_r = v_b_temp - v_Ax
+            is a dangerous bug, v_p and v_r will be alias of a same memory
+        """
+        m_R = m_B - m_AX
+        m_P = m_R.copy()
+
+        m_RtR = np.matmul(m_R.T, m_R)
+        vec_norm_ratio_cal = lambda x: np.linalg.norm(m_R[:,x])/np.linalg.norm(m_B[:,x])
+        hist_list.append( vec_norm_ratio_cal(whichcol) )
+        iter_counter = 0
+
+        while hist_list[-1]>self._tol and iter_counter <= self._max_iteration:
+            m_AP      = op_matmatmul(m_P)
+            m_PtAP    = np.matmul (m_P.T, m_AP)
+            m_alpha   = np.matmul( np.linalg.inv(m_PtAP), m_RtR )
+
+            m_X += np.matmul(m_P, m_alpha)
+            m_R -= np.matmul( m_AP, m_alpha)
+
+            m_RtR_new = np.matmul(m_R.T, m_R)
+            m_beta    = np.matmul( np.linalg.inv(m_RtR), m_RtR_new)
+            m_P       = m_R + np.matmul(m_P, m_beta)
+            m_RtR     = m_RtR_new
+            hist_list.append( vec_norm_ratio_cal(whichcol) )
+
+            iter_counter += 1
+
+        self._final_iterations = iter_counter
+        return m_X, m_R, hist_list
+
 def main():
     print("The NativeConjugateGradient method runs")
 
