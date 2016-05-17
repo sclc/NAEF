@@ -47,7 +47,7 @@ class Presenter():
         max_y_axis = -np.inf
         min_y_axis = np.inf
         for idx in range(0,len(y_data_list)):
-            assert min(y_data_list) >=0 "you have negative value, you cannot you log10 scaling"
+            assert min(y_data_list[idx]) >=.0, "you have negative value, you cannot you log10 scaling"
             Y_data = np.asarray([ math.log(y,10) for y in y_data_list[idx] ]);
             X_data = np.asarray( [x for x in range(0,len(y_data_list[idx]))] )
             plt.plot(X_data, Y_data, label=legend_list[idx] ,c=color_list[idx])
