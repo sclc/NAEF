@@ -155,6 +155,56 @@ class BCBCG():
 
         return m_X, m_R, residual_ratio_hist
 
+    def bcbcg_solver_least_square(self, mat, RHS, init_X, step_val, tol, maxiter,whichcol):
+        gerschgorin_estimator = GerschgorinCircleTheoremEigenvalueEstimator()
+        max_eigenvalue, min_eigenvalue = gerschgorin_estimator.csr_mat_extreme_eigenvalue_estimation(mat)
+        chebyshev_basis_generator = ChebyshevPolynomial()
+
+        op_A = linalg.aslinearoperator(mat)
+
+        m_R = RHS - op_A(init_X)
+        m_X = init_X.copy()
+
+        R_to_RHS_norm_ratio = lambda x: np.linalg.norm(m_R[:,x])/np.linalg.norm(RHS[:,x])
+        residual_ratio_hist  = [R_to_RHS_norm_ratio(whichcol)]
+
+        for itercounter in range(1, maxiter+1):
+            m_chebyshev_basis = \
+                    chebyshev_basis_generator.basis_generation_with_eigenvalue_shifting_and_scaling_block_vecs(\
+                    mat, m_R, step_val, max_eigenvalue, min_eigenvalue)
+
+            #print("basis rank",np.linalg.matrix_rank(m_chebyshev_basis))
+            #return
+
+            if itercounter == 1:
+                m_Q = m_chebyshev_basis
+            else:
+                m_AQ_trans_mul_chebyshev_basis = np.matmul(m_AQ.T , m_chebyshev_basis)
+
+                #m_B = np.matmul(m_Q_trans_AQ_inverse , m_AQ_trans_mul_chebyshev_basis)
+                m_B = np.linalg.lstsq(m_Q_trans_AQ, m_AQ_trans_mul_chebyshev_basis)[0]
+
+                m_Q = m_chebyshev_basis - np.matmul(m_Q, m_B)
+
+
+            m_AQ = op_A.matmat(m_Q)
+            m_Q_trans_AQ = np.matmul(m_Q.T, m_AQ)
+
+            #m_Q_trans_AQ_inverse = np.linalg.inv(m_Q_trans_AQ)
+            #m_alpha = np.matmul( m_Q_trans_AQ_inverse, np.matmul(m_Q.T, m_R) )
+            m_alpha = np.linalg.lstsq( m_Q_trans_AQ, np.matmul(m_Q.T, m_R) )[0]
+
+
+            m_X += np.matmul(m_Q,m_alpha)
+            m_R -= np.matmul(m_AQ, m_alpha)
+
+            residual_ratio_hist.append(R_to_RHS_norm_ratio(whichcol))
+
+            print(itercounter, ": ", R_to_RHS_norm_ratio(whichcol))
+            if residual_ratio_hist[-1] <= tol:
+                return m_X, m_R, residual_ratio_hist
+
+        return m_X, m_R, residual_ratio_hist
 
 
 
